@@ -3,7 +3,8 @@
 angular.module("NoteApp").controller("NewNoteCtrl", function($scope, NoteFctry) {
 
   $scope.addNote = () => {
-    console.log($scope.note);
+    $scope.note.uid = firebase.auth().currentUser.uid;
+    NoteFctry.addUserNote($scope.note);
   };
 
 });

@@ -15,7 +15,18 @@ angular.module("NoteApp").factory("NoteFctry", function($q, $http, Firebase) {
     });
   };
 
-  return { getUserNotes };
+  const addUserNote = ( newNote ) => {
+    return $q( (resolve, reject ) => {
+      $http
+      .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+      .then( (noteAdded) => {
+        console.log(noteAdded);
+        resolve(noteAdded);
+      });
+    });
+  };
+
+  return { getUserNotes, addUserNote };
 
 });
 
