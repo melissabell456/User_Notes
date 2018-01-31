@@ -1,9 +1,9 @@
 "use strict";
 
-angular.module("NoteApp").controller("LoginCtrl", function ($scope, AuthFctry) {
+angular.module("NoteApp").controller("UserStateCtrl", function ($scope, AuthFctry) {
 
   $scope.loginUser = () => {
-    AuthFctry.authenticateUser($scope.user)
+    AuthFctry.authenticateUserCreds($scope.user)
     .then( (returnedUser) => {
       console.log("returned user?", returnedUser);
     });

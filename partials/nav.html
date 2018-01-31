@@ -1,6 +1,8 @@
 <h1>Welcome to NoteApp</h1>
-
-<a href ="#!/login">Log In</a>
-<a href ="#!/register">Register</a>
-<a href ="#!/notes">My Notes</a>
-<a href ="#!/new">Add Note</a>
+<div ng-controller="NavCtrl">
+  <a href ="#!/login">Log In</a>
+  <a href ="#!/register">Register</a>
+  <a href ="#!/notes">My Notes</a>
+  <a href ="#!/new">Add Note</a>
+  <a href ng-click="logoutUser()">Log Out</a>
+</div>

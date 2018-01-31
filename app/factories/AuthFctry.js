@@ -2,7 +2,7 @@
 
 angular.module("NoteApp").factory("AuthFctry", function ($q, $http) {
 
-  const authenticateUser = ( { email, password } ) => {
+  const authenticateUserCreds = ( { email, password } ) => {
     return firebase.auth().signInWithEmailAndPassword(email, password);
   };
 
@@ -10,5 +10,9 @@ angular.module("NoteApp").factory("AuthFctry", function ($q, $http) {
     return firebase.auth().createUserWithEmailAndPassword(email, password);
   };
 
-  return { authenticateUser, registerUserCreds };
+  const logoutUserCreds = () => {
+    return firebase.auth().signOut();
+  };
+
+  return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
 });
