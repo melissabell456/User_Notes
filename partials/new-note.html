@@ -1,1 +1,9 @@
 <h3>Add Notes</h3>
+
+<input type="text" ng-model="note.title" placeholder="Title">
+<br>
+<input type="text" ng-model="note.date" placeholder="Date">
+<br>
+<textarea ng-model="note.content" placeholder="Write a note" rows="20" cols="60"></textarea>
+<br>
+<button ng-click="addNote()">Add Note</button>

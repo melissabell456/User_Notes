@@ -7,7 +7,7 @@ angular.module("NoteApp").factory("NoteFctry", function($q, $http, Firebase) {
       $http
       .get(`${Firebase}/notes.json`)
       .then( ({ data }) => {
-        console.log("in ctrl, this is { data }", data);
+        resolve(data);
       })
       .catch( (err) => {
         console.log("firebase data err", err);

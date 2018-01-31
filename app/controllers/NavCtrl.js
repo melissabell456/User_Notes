@@ -7,7 +7,7 @@ angular.module("NoteApp").controller("NavCtrl", function($scope, AuthFctry, $win
     AuthFctry.logoutUserCreds()
     .then( (returnedUser) => {
       console.log("logged out", firebase.auth().currentUser);
-      $window.location.href = "#!/login";
+      $window.location.href="#!/login";
     });
   };
 
