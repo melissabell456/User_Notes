@@ -13960,3 +13960,2314 @@
 }) (angular.module ('NoteApp', ['ngRoute']));
 
 
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = userNotes.Objectkeys();
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = userNotes.objectKeys();
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes);
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).forEach( (noteID) => {
+        console.log(userNotes[noteID]);
+      });
+      // console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).forEach( (noteID) => {
+        userNotes[noteID].fbID = noteID;
+        console.log(userNotes[noteID]);
+      });
+      // console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).forEach( (noteID) => {
+        userNotes[noteID].fbID = noteID;
+        // console.log(userNotes[noteID]);
+      });
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).forEach( (noteID) => {
+        userNotes[noteID].fbID = noteID;
+        return userNotes[noteID];
+      });
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).forEach( (noteID) => {
+        userNotes[noteID].fbID = noteID;
+        return userNotes[noteID];
+      });
+    });
+    console.log($scope.notes, "for printing");
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).forEach( (noteID) => {
+        userNotes[noteID].fbID = noteID;
+        return userNotes[noteID];
+      });
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).map( (noteID) => {
+        userNotes[noteID].fbID = noteID;
+        return userNotes[noteID];
+      });
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
+
+//====================================================================================================================
+// Module:    NoteApp
+// Optimized: Yes
+// File:      ./app/app.js
+//====================================================================================================================
+
+(function (module) {
+
+  "use strict";
+
+  module
+  .constant("Firebase", "https://fir-a5a79.firebaseio.com/")
+  .config($routeProvider => {
+    $routeProvider
+    .when("/register", {
+      templateUrl: "../partials/register.html",
+      controller: "RegisterCtrl"
+    })
+    .when("/login", {
+      templateUrl: "../partials/log-in.html",
+      controller: "UserStateCtrl"
+    })
+    .when("/notes", {
+      templateUrl: "../partials/note-list.html",
+      controller: "NoteCtrl"
+    })
+    .when("/new", {
+      templateUrl: "../partials/new-note.html",
+      controller: "NewNoteCtrl"
+    })
+    .otherwise("/");
+  })
+  .run(Firebasecreds => {
+    let creds = Firebasecreds;
+    let authConfig = {
+      apiKey: creds.key,
+      authDomain: creds.authDomain
+    };
+    firebase.initializeApp(authConfig);
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NavCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NavCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.logoutUser = () => {
+      console.log("clicked");
+      AuthFctry.logoutUserCreds()
+      .then( (returnedUser) => {
+        console.log("logged out", firebase.auth().currentUser);
+        $window.location.href="#!/login";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NewNoteCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NewNoteCtrl", function($scope, NoteFctry, $window) {
+
+
+    $scope.addNote = () => {
+      if (firebase.auth().currentUser === null) {
+        $window.location.href = "#!/login";
+      }
+      else {
+        let currentUser = firebase.auth().currentUser.uid;
+        $scope.note.uid = currentUser;
+        NoteFctry.addUserNote($scope.note)
+        .then( () => {
+          NoteFctry.getUserNotes();
+          $window.location.href = "#!/note-list.html";
+        });
+      }
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/NotesCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("NoteCtrl", function($scope, NoteFctry) { 
+
+    NoteFctry.getUserNotes()
+    .then( (userNotes) => {
+      $scope.notes = Object.keys(userNotes).map( (noteID) => {
+        userNotes[noteID].fbID = noteID;
+        return userNotes[noteID];
+      });
+      console.log($scope.notes, "for printing");
+    });
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/RegisterCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("RegisterCtrl", function($scope, AuthFctry, $window) {
+
+    $scope.registerUser = () => {
+      AuthFctry.registerUserCreds($scope.user)
+      .then( (returnedUser) => {
+        $window.location.href="#!/new";
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/controllers/UserStateCtrl.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.controller("UserStateCtrl", function ($scope, AuthFctry) {
+
+    $scope.loginUser = () => {
+      AuthFctry.authenticateUserCreds($scope.user)
+      .then( (returnedUser) => {
+        console.log("returned user?", returnedUser);
+      });
+    };
+
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/AuthFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("AuthFctry", function ($q, $http) {
+
+    const authenticateUserCreds = ( { email, password } ) => {
+      return firebase.auth().signInWithEmailAndPassword(email, password);
+    };
+
+    const registerUserCreds = ( { email, password } ) => {
+      return firebase.auth().createUserWithEmailAndPassword(email, password);
+    };
+
+    const logoutUserCreds = () => {
+      return firebase.auth().signOut();
+    };
+
+    return { authenticateUserCreds, registerUserCreds, logoutUserCreds };
+  });
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/factories/NoteFctry.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict";
+
+  module.factory("NoteFctry", function($q, $http, Firebase) {
+
+    const getUserNotes = () => {
+      return $q( (resolve, reject) => {
+        $http
+        .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
+        .then( ({ data }) => {
+          resolve(data);
+        })
+        .catch( (err) => {
+          console.log("firebase data err", err);
+        });
+      });
+    };
+
+    const addUserNote = ( newNote ) => {
+      return $q( (resolve, reject ) => {
+        $http
+        .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
+        .then( (noteAdded) => {
+          resolve(noteAdded);
+        })
+        .catch( (err) => {
+          console.log(err);
+        });
+      });
+    };
+
+    return { getUserNotes, addUserNote };
+
+  });
+
+
+//--------------------------------------------------------------------------------------------------------------------
+// File: ./app/values/firebaseCreds.js
+//--------------------------------------------------------------------------------------------------------------------
+
+  "use strict"; 
+
+  module.constant("Firebasecreds", {
+
+    key: "AIzaSyCC-X2NZWNA0doyH8I0C4ATT1A_ZLhtGIY",
+    authDomain: "fir-a5a79.firebaseapp.com"
+
+  });
+
+}) (angular.module ('NoteApp', ['ngRoute']));
+
+
