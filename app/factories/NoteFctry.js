@@ -5,7 +5,7 @@ angular.module("NoteApp").factory("NoteFctry", function($q, $http, Firebase) {
   const getUserNotes = () => {
     return $q( (resolve, reject) => {
       $http
-      .get(`${Firebase}/notes.json`)
+      .get(`${Firebase}/notes.json?orderBy="uid"&equalTo="${firebase.auth().currentUser.uid}"`)
       .then( ({ data }) => {
         resolve(data);
       })
@@ -20,8 +20,10 @@ angular.module("NoteApp").factory("NoteFctry", function($q, $http, Firebase) {
       $http
       .post(`${Firebase}/notes.json`, JSON.stringify(newNote))
       .then( (noteAdded) => {
-        console.log(noteAdded);
         resolve(noteAdded);
+      })
+      .catch( (err) => {
+        console.log(err);
       });
     });
   };
