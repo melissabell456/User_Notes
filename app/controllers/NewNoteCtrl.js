@@ -12,8 +12,10 @@ angular.module("NoteApp").controller("NewNoteCtrl", function($scope, NoteFctry, 
       $scope.note.uid = currentUser;
       NoteFctry.addUserNote($scope.note)
       .then( () => {
-        NoteFctry.getUserNotes();
-        $window.location.href = "#!/note-list.html";
+        NoteFctry.getUserNotes()
+        .then( (data) => {
+          $window.location.href = "#!/notes";
+        });
       });
     }
   };
