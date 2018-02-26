@@ -1,6 +1,6 @@
 # User Notes with Authentication
 
-###This is an NSS exercise to practice using AngularJS, user authentication, and crud functionality
+### This is an NSS exercise to practice using AngularJS, user authentication, and crud functionality
 ### Requirements
 
 In this exercise, you'll be requiring users to register and log into your application before they can use it. The user interface is very simple once they log in, because this is a basic application that will allow them to enter notes, and then view all notes.
